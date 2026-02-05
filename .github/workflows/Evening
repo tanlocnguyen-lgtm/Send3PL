@@ -2,7 +2,7 @@ name: Sheet -> PNG -> SeaTalk (Evening)
 
 on:
   schedule:
-    - cron: "0 5 * * *"    # 20h VN
+    - cron: "0 5 * * *"    # 13h VN
   workflow_dispatch:
 
 jobs:
