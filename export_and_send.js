@@ -59,20 +59,7 @@ function parseA1Range(a1) {
 }
 
 // Build mention tags array exactly like Apps Script style
-const MENTION_EMAILS = [
-  "luc.nguyen@shopee.com",
-  "vominh.quan@shopee.com",
-  "xuanbiu.nguyen@shopee.com",
-  "hoangsang.tranvu@shopee.com",
-  "luan.nguyen@shopee.com",
-  // additional mentions appended later (quang.huynh, anh.tranviet, dieu.buithuy, tanloc.nguyen)
-];
-
-const FOOTER_MENTIONS = [
-  "quang.huynh@shopee.com",
-  "dieu.buithuy@shopee.com",
-  "tanloc.nguyen@shopee.com"
-];
+const mentionAll = '<mention-tag target="seatalk://user?id=0"/>';
 
 function buildMentionTags(emails) {
   return emails.map(e => `<mention-tag target="seatalk://user?email=${e}"/>`).join("");
@@ -100,7 +87,7 @@ function buildMentionTags(emails) {
 
     // --- Read specific cells from BOT sheet (A1..A15 and B1) ---
     // We'll request BOT!A1:A15 and BOT!B1
-    const rangeA = `${TEXT_SHEET_NAME}!A1:A15`;
+    const rangeA = `${TEXT_SHEET_NAME}!Z1:Z15`;
     const rangeB = `${TEXT_SHEET_NAME}!B1`;
 
     let aVals = [];
@@ -154,17 +141,20 @@ function buildMentionTags(emails) {
     const dat15 = aVals[14] || ""; // A15
     const dat11 = b1 || "";        // B1
 
-    // --- Build final text exactly like your Apps Script data20 ---
-    const prefixMentions = buildMentionTags(MENTION_EMAILS);
-    const footerMentions = buildMentionTags(FOOTER_MENTIONS);
 
-    // replicate spacing, bolds, newlines as original
-    let finalText = "";
-    finalText += dat11;
-    finalText += prefixMentions;
-    finalText += dat0 + "\n";
-    finalText += dat2 + "\n";
-    finalText += footerMentions;
+// --- Build final text exactly like your Apps Script data20 ---
+const prefixMentions = mentionAll;
+
+// replicate spacing, bolds, newlines as original
+let finalText = `${dat11}
+${prefixMentions}
+${dat0}
+${dat2}
+`;
+
+console.log("Preview message:");
+console.log(finalText);
+
 
     // --- Send text to SeaTalk ---
     try {
