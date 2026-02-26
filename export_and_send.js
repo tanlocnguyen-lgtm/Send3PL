@@ -21,7 +21,11 @@ const {
   SCALE_TO_PX = "1600",
   USE_LOCAL_IMAGE = "0",       // set to "1" to use local file
   LOCAL_IMAGE_PATH = "/mnt/data/55c6a28d-b9e9-4247-9079-a1808fb9dc68.png", // your uploaded file path
-  TEXT_SHEET_NAME = "KAM_check"      // sheet name where text cells live
+  TEXT_SHEET_NAME = "List sai lịch",      // sheet name where text cells live
+  MENTION_RANGE_A = "List sai lịch!AB3:AB25",
+ MENTION_RANGE_B = "List sai lịch!AC3:AC25",
+ MENTION_RANGE_C = "List sai lịch!AC3:AC25",
+
 } = process.env;
 
 function need(v, name) { if (!v) { console.error(`Missing env: ${name}`); process.exit(1); } }
@@ -58,12 +62,32 @@ function parseA1Range(a1) {
   };
 }
 
-// Build mention tags array exactly like Apps Script style
-const mentionAll = '<mention-tag target="seatalk://user?id=0"/>';
+
+const FOOTER_MENTIONS = [
+  "quang.huynh@shopee.com",
+  "chieudan.nguyen@shopee.com"
+];
 
 function buildMentionTags(emails) {
   return emails.map(e => `<mention-tag target="seatalk://user?email=${e}"/>`).join("");
 }
+async function readMentionEmails(token, range) {
+  const resp = await fetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+
+  if (!resp.ok) return [];
+
+  const data = await resp.json();
+  const rows = data.values || [];
+
+  return rows
+    .filter(r => r[0])
+    .map(r => r[0].trim());
+}
+
+
 
 (async () => {
   try {
@@ -87,75 +111,60 @@ function buildMentionTags(emails) {
 
     // --- Read specific cells from BOT sheet (A1..A15 and B1) ---
     // We'll request BOT!A1:A15 and BOT!B1
-    const rangeA = `${TEXT_SHEET_NAME}!Z1:Z15`;
-    const rangeB = `${TEXT_SHEET_NAME}!B1`;
+    const textRange = `${TEXT_SHEET_NAME}!B1:B6`;
 
-    let aVals = [];
-    try {
-      const rresp = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(rangeA)}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (rresp.ok) {
-        const j = await rresp.json();
-        // j.values is array of arrays; map to flat list length 15 (fill with empty strings if missing)
-        aVals = (j.values || []).map(row => row[0] == null ? "" : String(row[0]));
-      } else {
-        console.warn("Warning: cannot fetch range", rangeA, "->", await rresp.text());
-      }
-    } catch (e) {
-      console.warn("Warning reading rangeA:", e);
-    }
+  let textVals = [];
 
-    let b1 = "";
-    try {
-      const r2 = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(rangeB)}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (r2.ok) {
-        const j2 = await r2.json();
-        b1 = (j2.values && j2.values[0] && j2.values[0][0]) ? String(j2.values[0][0]) : "";
-      } else {
-        console.warn("Warning: cannot fetch range", rangeB, "->", await r2.text());
-      }
-    } catch (e) {
-      console.warn("Warning reading rangeB:", e);
-    }
+try {
+  const resp = await fetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(textRange)}`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
 
-    // normalize aVals to length 15 for indexing convenience
-    while (aVals.length < 15) aVals.push("");
+  if (resp.ok) {
+    const j = await resp.json();
+    textVals = (j.values || []).map(r => r[0] || "");
+  } else {
+    console.warn("Cannot read text range:", await resp.text());
+  }
+} catch (e) {
+  console.warn("Error reading text:", e);
+}
+
+
 
     // Map to datX like your Apps Script:
-    const dat0 = aVals[0] || "";   // A1
-    const dat1 = aVals[1] || "";   // A2
-    const dat2 = aVals[2] || "";   // A3
-    const dat3 = aVals[3] || "";   // A4
-    const dat4 = aVals[4] || "";   // A5
-    const dat5 = aVals[5] || "";   // A6
-    const dat6 = aVals[6] || "";   // A7
-    const dat7 = aVals[7] || "";   // A8
-    const dat8 = aVals[8] || "";   // A9
-    const dat9 = aVals[9] || "";   // A10
-    const dat10 = aVals[10] || ""; // A11
-    const dat12 = aVals[11] || ""; // A12
-    const dat14 = aVals[13] || ""; // A14
-    const dat15 = aVals[14] || ""; // A15
-    const dat11 = b1 || "";        // B1
+ const dat0 = textVals[0];
+ const dat1 = textVals[1];
+ const dat2 = textVals[2];
+ const dat3 = textVals[3];
+ const dat4 = textVals[4];
+ const dat5 = textVals[5];
+
+    // --- Build final text exactly like your Apps Script data20 ---
+const emailsA = await readMentionEmails(token, MENTION_RANGE_A);
+const emailsB = await readMentionEmails(token, MENTION_RANGE_B);
+const emailsC = await readMentionEmails(token, MENTION_RANGE_C);
+
+const mentionsA = buildMentionTags(emailsA);
+const mentionsB = buildMentionTags(emailsB);
+const mentionsC = buildMentionTags(emailsC);
 
 
-// --- Build final text exactly like your Apps Script data20 ---
-const prefixMentions = mentionAll;
 
-// replicate spacing, bolds, newlines as original
-let finalText = `${dat11}
-${prefixMentions}
-${dat0}
-${dat2}
-`;
+    // replicate spacing, bolds, newlines as original
+let finalText = "";
+finalText += "**" + dat0 + "**" + "\n";
+finalText += dat1;
+finalText += dat2 + "\n";
+finalText += mentionsA + "\n";
+finalText += dat3 + "\n";
+finalText += dat4 + "\n";
+finalText += mentionsB + "\n";
+finalText += dat5 + "\n";
+finalText += mentionsC + "\n";
 
-console.log("Preview message:");
-console.log(finalText);
-
-
+    
     // --- Send text to SeaTalk ---
     try {
       const textPayload = { tag: "text", text: { content: finalText } };
