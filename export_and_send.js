@@ -155,7 +155,7 @@ const mentionsC = buildMentionTags(emailsC);
     // replicate spacing, bolds, newlines as original
 let finalText = "";
 finalText += "**" + dat0 + "**" + "\n";
-finalText += dat1;
+finalText += dat1 + "\n";
 finalText += dat2 + "\n";
 finalText += mentionsA + "\n";
 finalText += dat3 + "\n";
