@@ -24,7 +24,7 @@ const {
   TEXT_SHEET_NAME = "List sai lịch",      // sheet name where text cells live
   MENTION_RANGE_A = "List sai lịch!AB3:AB25",
  MENTION_RANGE_B = "List sai lịch!AC3:AC25",
- MENTION_RANGE_C = "List sai lịch!AC3:AC25",
+ MENTION_RANGE_C = "List sai lịch!AD3:AD25",
 
 } = process.env;
 
