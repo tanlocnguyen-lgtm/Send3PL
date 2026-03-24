@@ -111,7 +111,7 @@ async function readMentionEmails(token, range) {
 
     // --- Read specific cells from BOT sheet (A1..A15 and B1) ---
     // We'll request BOT!A1:A15 and BOT!B1
-    const textRange = `${TEXT_SHEET_NAME}!AF2:AF7`;
+    const textRange = `${TEXT_SHEET_NAME}!AF2:AF8`;
 
   let textVals = [];
 
