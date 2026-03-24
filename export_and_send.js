@@ -140,6 +140,7 @@ try {
  const dat3 = textVals[3];
  const dat4 = textVals[4];
  const dat5 = textVals[5];
+ const dat6 = textVals[6];
 
     // --- Build final text exactly like your Apps Script data20 ---
 const emailsA = await readMentionEmails(token, MENTION_RANGE_A);
@@ -163,6 +164,7 @@ finalText += dat4 + "\n";
 finalText += mentionsB + "\n";
 finalText += dat5 + "\n";
 finalText += mentionsC + "\n";
+finalText += dat6 + "\n";
 
     
     // --- Send text to SeaTalk ---
